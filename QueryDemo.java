@@ -25,10 +25,10 @@ public class QueryDemo
 		else
 			input = args[0];
 		
-		Query query = NGramQueryParser.parse(input, 1);
+		Query query = NGramQueryParser.parse(input, 0.5);
 
 		Long time = System.currentTimeMillis();
-	    IndexReader reader = IndexReader.open(FSDirectory.open(new File("D:\\result")));
+	    IndexReader reader = IndexReader.open(FSDirectory.open(new File("D:\\result2")));
 	    IndexSearcher searcher = new IndexSearcher(reader);
 		TopDocs docs = searcher.search(query,10);
 		

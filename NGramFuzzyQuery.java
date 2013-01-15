@@ -28,12 +28,6 @@ public class NGramFuzzyQuery extends SpanTermQuery
 
 	public Term[] analyze(Term term) throws IOException
 	{
-//		if(term.text().length() == 2)		// If term's length is 2, do wildcardquery
-//		{
-//			Term[] singleTerm = new Term[1];
-//			singleTerm[0] = new Term(term.field(), term.text().concat("?"));
-//			return singleTerm;
-//		}
 		NGramAnalyzer analyzer = new NGramAnalyzer();
 		TokenStream stream = analyzer.tokenStream(null, new StringReader(term.text()));
 		CharTermAttribute termAtt = stream.addAttribute(CharTermAttribute.class);
@@ -48,6 +42,8 @@ public class NGramFuzzyQuery extends SpanTermQuery
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		splitlist.remove(0);
+		splitlist.remove(0);
 		return splitlist.toArray(new Term[0]);
 	}
 

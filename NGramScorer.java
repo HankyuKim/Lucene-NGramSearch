@@ -58,36 +58,22 @@ public class NGramScorer extends Scorer {
 		if(!moreDocs)
 			return false;
 
-//		long time = System.currentTimeMillis();
 	    freq = 0.0f;
 	    posList.clear();
-//		time = System.currentTimeMillis()-time;
-//		System.out.println("Time taken to empty list: "+ time);
-//	    int existingTrigrams = 0;
-//		System.out.println("================="+docID+"===============");
-//		time = System.currentTimeMillis();
 		for(int i=0; i<spans.length; i++)
 		{
 			if(spans[i].doc() == docID)
 			    do
 			    {
-//			    	System.out.println(spans[i]);
 			    	int matchLength = spans[i].end() - spans[i].start();
 			    	posList.add(spans[i].start());
 			    	freq += docScorer.computeSlopFactor(matchLength);
 			    	more[i] = spans[i].next();
 			    }while(more[i] && docID == spans[i].doc());	
 		}
-//		System.out.println("NGrams to go through: "+posList.size());
-//		time = System.currentTimeMillis()-time;
-//		System.out.println("Time taken to merge spans: "+ time);
-//		time = System.currentTimeMillis();
 		Collections.sort(posList);
-//		time = System.currentTimeMillis()-time;
-//		System.out.println("Time taken to sort array: "+ time);
 		combo = 0;
 
-//		time = System.currentTimeMillis();
 		int c = 0;
 		for(int i=0; i<posList.size()-1; i++)
 		{
@@ -100,13 +86,6 @@ public class NGramScorer extends Scorer {
 			}
 			else
 				c=0;
-		}
-//		time = System.currentTimeMillis()-time;
-//		System.out.println("Time taken to count combo: "+ time);
-//		System.out.println(combo +"/"+spans.length/2);
-		if(combo < (spans.length-1)*matchRate)
-		{
-			return setFreqCurrentDoc();
 		}
 		
 	    return true;
@@ -170,10 +149,14 @@ public class NGramScorer extends Scorer {
 
 	@Override
 	public int nextDoc() throws IOException {
-	    if (!setFreqCurrentDoc()) {
+	    do
+		if (!setFreqCurrentDoc()) {
 	        docID = NO_MORE_DOCS;
-	      }
-	      return docID;
+	        return docID;
+	     }
+		while(combo < (spans.length-1)*matchRate);
+		
+	    return docID;
 	}
 
 	public void setMatchRate(double matchRate) {
