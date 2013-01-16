@@ -9,6 +9,7 @@ public class NGramQueryParser
 {
 	public static Query parse(String input, double matchRate) throws IOException
 	{
+		// Decide between WildcardQuery and NGramFuzzyQuery, depending on the length of query
 		if(input.length() <= 2)
 		{
 			input = input.concat("?");

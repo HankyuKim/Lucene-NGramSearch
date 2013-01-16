@@ -15,19 +15,22 @@ public class NGramFuzzyQuery extends SpanTermQuery
 {
 	private ArrayList<SpanQuery> clauses;
 	private double matchRate;
-	
+
+	// Keeps SpanTermQuery's format, except it deals with clauses (multiple SpanQueries)	
 	public NGramFuzzyQuery(Term term, double matchRate) throws IOException {
 		super(term);
 		this.setMatchRate(matchRate);
 		clauses = new ArrayList<SpanQuery>();
 		for(Term t: analyze(term))
 		{
+			//Fill clauses with the trigrams created using analyze
 			clauses.add(new SpanTermQuery(t));
 		}
 	}
 
 	public Term[] analyze(Term term) throws IOException
 	{
+		// Given a term, create trigrams and put them into an array.
 		NGramAnalyzer analyzer = new NGramAnalyzer();
 		TokenStream stream = analyzer.tokenStream(null, new StringReader(term.text()));
 		CharTermAttribute termAtt = stream.addAttribute(CharTermAttribute.class);

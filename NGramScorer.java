@@ -28,6 +28,7 @@ public class NGramScorer extends Scorer {
 		this.docScorer = docScorer;
 		this.more = new boolean[spans.length];
 
+		//Make sure spans aren't empty
 		for(int i=0; i<spans.length; i++)
 		{
 		    if (spans[i].next()) {
@@ -41,8 +42,10 @@ public class NGramScorer extends Scorer {
 		}
 	}
 	
+	// Set docID to next matching document id. Return false if there is no more document.
 	protected boolean setFreqCurrentDoc() throws IOException 
 	{
+		//Find next document, which is the first document where any of the spans are found
 		docID = spans[0].doc();
 		boolean moreDocs = false;
 		for(int m=0; m<more.length; m++)
@@ -58,7 +61,8 @@ public class NGramScorer extends Scorer {
 		if(!moreDocs)
 			return false;
 
-	    freq = 0.0f;
+		// Calculate term frequency
+		freq = 0.0f;
 	    posList.clear();
 		for(int i=0; i<spans.length; i++)
 		{
@@ -66,14 +70,15 @@ public class NGramScorer extends Scorer {
 			    do
 			    {
 			    	int matchLength = spans[i].end() - spans[i].start();
-			    	posList.add(spans[i].start());
+			    	posList.add(spans[i].start());	// Collect positions of all the trigrams
 			    	freq += docScorer.computeSlopFactor(matchLength);
 			    	more[i] = spans[i].next();
 			    }while(more[i] && docID == spans[i].doc());	
 		}
+		
+		// Calculate the max combo of the trigrams.
 		Collections.sort(posList);
 		combo = 0;
-
 		int c = 0;
 		for(int i=0; i<posList.size()-1; i++)
 		{
@@ -94,6 +99,7 @@ public class NGramScorer extends Scorer {
 	  
 	@Override
 	public float score() throws IOException {
+		// Return score
 		float score = docScorer.score(docID, freq);
 		score *= (float)(combo+1)/(spans.length);
 		
@@ -130,10 +136,15 @@ public class NGramScorer extends Scorer {
 	    if(endOfDocs)
 	    	return docID = NO_MORE_DOCS;
 	    
-	    if (!setFreqCurrentDoc()) {
-	    	docID = NO_MORE_DOCS;
-	    }
-	    
+	    do
+	    {
+			if (!setFreqCurrentDoc()) 
+			{
+		        docID = NO_MORE_DOCS;
+		        return docID;
+		     }
+	    }while(combo < (spans.length-1)*matchRate);
+			
 	    return docID;
 	}
 
@@ -146,9 +157,9 @@ public class NGramScorer extends Scorer {
 	}
 
 
-
 	@Override
 	public int nextDoc() throws IOException {
+		// Find next document that has match.
 	    do
 		if (!setFreqCurrentDoc()) {
 	        docID = NO_MORE_DOCS;

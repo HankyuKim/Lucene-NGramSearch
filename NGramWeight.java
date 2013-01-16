@@ -25,26 +25,26 @@ public class NGramWeight extends Weight
 	  protected Map<Term,TermContext> termContexts;
 	  protected SpanQuery[] queries;
 	  protected NGramFuzzyQuery query;
-//	  protected ArrayList<SpanQuery> clauses;
 	  protected Similarity.SimWeight stats;
 
-//	public NGramWeight(ArrayList<SpanQuery> clauses, IndexSearcher searcher) throws IOException
-//	{
 
 	public NGramWeight(NGramFuzzyQuery query, IndexSearcher searcher) throws IOException
 	{	
 	    similarity = searcher.getSimilarity();
-//	    this.clauses = clauses;
 	    termContexts = new HashMap<Term,TermContext>();
 	    TreeSet<Term> terms = new TreeSet<Term>();
 	    
 	    this.query = query;
 	    queries = query.getClauses();
 	    
+	    //extract terms from each queries
 	    for(int i=0; i<queries.length; i++)
 	    {
 		    queries[i].extractTerms(terms);
 	    }
+	    
+
+	    //Create term statistics
 	    final IndexReaderContext context = searcher.getTopReaderContext();
 	    final TermStatistics termStats[] = new TermStatistics[terms.size()];
 	    int i = 0;
@@ -76,7 +76,7 @@ public class NGramWeight extends Weight
 	    if (stats == null) {
 	      return null;
 	    } else {
-	    	
+	    	//Create spans for each of the trigram.
 	    	Spans[] spans = new Spans[queries.length];
 	    	for(int i=0; i<spans.length; i++)
 	    	{
@@ -86,8 +86,8 @@ public class NGramWeight extends Weight
 	    	scorer.setMatchRate(query.getMatchRate());
 	      return scorer;
 	    }
-	  }
-
+	}
+	
 	@Override
 	public Explanation explain(AtomicReaderContext arg0, int arg1)
 			throws IOException {
