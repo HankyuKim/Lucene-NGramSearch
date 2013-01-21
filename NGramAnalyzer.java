@@ -1,6 +1,7 @@
 import java.io.Reader;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.Analyzer.TokenStreamComponents;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.TokenStream;
 //import org.apache.lucene.analysis.ngram.NGramTokenizer;
@@ -31,7 +32,6 @@ public class NGramAnalyzer  extends Analyzer{
 	protected TokenStreamComponents createComponents(String fieldName, Reader reader) {
 	    NGramTokenizer src = new NGramTokenizer(matchVersion, reader); // My NGramTokenizer
 	    TokenStream tok = new LowerCaseFilter(matchVersion, src);
-
 	    return new TokenStreamComponents(src, tok);
 	}
 }

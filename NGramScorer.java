@@ -69,9 +69,7 @@ public class NGramScorer extends Scorer {
 			if(spans[i].doc() == docID)
 			    do
 			    {
-			    	int matchLength = spans[i].end() - spans[i].start();
 			    	posList.add(spans[i].start());	// Collect positions of all the trigrams
-			    	freq += docScorer.computeSlopFactor(matchLength);
 			    	more[i] = spans[i].next();
 			    }while(more[i] && docID == spans[i].doc());	
 		}
@@ -85,6 +83,7 @@ public class NGramScorer extends Scorer {
 			int distance = posList.get(i+1) - posList.get(i);
 			if(distance < 5)
 			{
+		    	freq += docScorer.computeSlopFactor(distance); // Accumulated frequency each time depends on the distance between two matches
 				c++;
 				if(combo<c)
 					combo = c;
@@ -166,11 +165,12 @@ public class NGramScorer extends Scorer {
 	        return docID;
 	     }
 		while(combo < (spans.length-1)*matchRate);
-		
 	    return docID;
 	}
 
 	public void setMatchRate(double matchRate) {
+		if(matchRate>1)
+			matchRate = 1;
 		this.matchRate = matchRate;
 	}
 
